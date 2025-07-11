@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styled, { ThemeProvider, css } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../../assets/logo.png';
@@ -158,6 +158,8 @@ const Sidebar = ({ color }) => {
     const [isOpened, setIsOpened] = useState(true);
     const [theme, setTheme] = useState(color === 'dark' ? 'dark' : 'light');
     const [activePath, setActivePath] = useState('/');
+    const [mountedIndexes, setMountedIndexes] = useState([]);
+    const [isFirstMount, setIsFirstMount] = useState(true);
 
     const themeObj = useMemo(() => themes[theme], [theme]);
 
@@ -174,6 +176,20 @@ const Sidebar = ({ color }) => {
         setTheme(t => t === 'light' ? 'dark' : 'light');
     };
 
+    // Анимация появления пунктов при первом монтировании
+    useEffect(() => {
+      if (isFirstMount) {
+        let timeouts = [];
+        routes.concat(bottomRoutes).forEach((_, idx) => {
+          timeouts.push(setTimeout(() => {
+            setMountedIndexes(prev => [...prev, idx]);
+          }, idx * 80));
+        });
+        setTimeout(() => setIsFirstMount(false), (routes.length + bottomRoutes.length) * 80 + 300);
+        return () => timeouts.forEach(clearTimeout);
+      }
+    }, [isFirstMount]);
+
     return (
         <ThemeProvider theme={themeObj}>
             <SidebarContainer opened={isOpened}>
@@ -188,12 +204,17 @@ const Sidebar = ({ color }) => {
                     <FontAwesomeIcon icon={theme === 'light' ? 'moon' : 'sun'} color={theme === 'light' ? '#000' : '#fff'} />
                 </ThemeButton>
                 <NavSection>
-                    {routes.map(route => (
+                    {routes.map((route, idx) => (
                         <NavItem
                             key={route.title}
                             active={activePath === route.path}
                             onClick={() => goToRoute(route.path)}
                             opened={isOpened}
+                            style={{
+                              opacity: isFirstMount ? (mountedIndexes.includes(idx) ? 1 : 0) : 1,
+                              transform: isFirstMount ? (mountedIndexes.includes(idx) ? 'translateY(0)' : 'translateY(-20px)') : 'none',
+                              transition: 'opacity 0.3s, transform 0.3s',
+                            }}
                         >
                             <FontAwesomeIcon icon={route.icon} />
                             <span>{route.title}</span>
@@ -201,12 +222,17 @@ const Sidebar = ({ color }) => {
                     ))}
                 </NavSection>
                 <BottomSection>
-                    {bottomRoutes.map(route => (
+                    {bottomRoutes.map((route, idx) => (
                         <NavItem
                             key={route.title}
                             active={activePath === route.path}
                             onClick={() => goToRoute(route.path)}
                             opened={isOpened}
+                            style={{
+                              opacity: isFirstMount ? (mountedIndexes.includes(routes.length + idx) ? 1 : 0) : 1,
+                              transform: isFirstMount ? (mountedIndexes.includes(routes.length + idx) ? 'translateY(0)' : 'translateY(-20px)') : 'none',
+                              transition: 'opacity 0.3s, transform 0.3s',
+                            }}
                         >
                             <FontAwesomeIcon icon={route.icon} />
                             <span>{route.title}</span>
