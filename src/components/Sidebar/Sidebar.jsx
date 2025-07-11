@@ -66,6 +66,7 @@ const LogoSection = styled.div`
   padding: 24px 20px 16px 20px;
   min-height: 64px;
   justify-content: space-between;
+  position: relative;
 `;
 
 const LogoImg = styled.img`
@@ -93,7 +94,11 @@ const ToggleButton = styled.button`
   justify-content: center;
   cursor: pointer;
   transition: background 0.2s;
-  margin-left: 8px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: ${props => props.opened ? '-16px' : '-21px'};
+  z-index: 10;
   &:active {
     background: ${props => props.theme.buttonBgActive};
   }
@@ -196,10 +201,10 @@ const Sidebar = ({ color }) => {
                 <LogoSection>
                     <LogoImg src={logo} alt="Logo" />
                     <LogoText opened={isOpened}>TensorFlow</LogoText>
-                    <ToggleButton onClick={toggleSidebar} title="Toggle sidebar">
-                        <FontAwesomeIcon icon={isOpened ? 'angle-left' : 'angle-right'} />
-                    </ToggleButton>
                 </LogoSection>
+                <ToggleButton onClick={toggleSidebar} title="Toggle sidebar" opened={isOpened}>
+                    <FontAwesomeIcon icon={isOpened ? 'angle-left' : 'angle-right'} color={theme === 'dark' ? '#fff' : '#000'} />
+                </ToggleButton>
                 <ThemeButton onClick={toggleTheme} title="Toggle theme">
                     <FontAwesomeIcon icon={theme === 'light' ? 'moon' : 'sun'} color={theme === 'light' ? '#000' : '#fff'} />
                 </ThemeButton>
