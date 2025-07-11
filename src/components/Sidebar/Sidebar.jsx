@@ -154,43 +154,10 @@ const BottomSection = styled.div`
   padding: 8px 0 16px 0;
 `;
 
-// Tooltip для текста при hover
-const Tooltip = styled.div`
-  position: absolute;
-  left: 72px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: ${props => props.theme.sidebarBgHover};
-  color: ${props => props.theme.textHover};
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 1rem;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s;
-  z-index: 10;
-`;
-
-const NavItemWrapper = styled.div`
-  position: relative;
-`;
-
-// Кнопка всегда у правой границы
-const ToggleButtonFixed = styled(ToggleButton)`
-  position: absolute;
-  right: 0;
-  top: 16px;
-  z-index: 20;
-  margin-left: 0;
-`;
-
 const Sidebar = ({ color }) => {
     const [isOpened, setIsOpened] = useState(true);
     const [theme, setTheme] = useState(color === 'dark' ? 'dark' : 'light');
     const [activePath, setActivePath] = useState('/');
-    const [hovered, setHovered] = useState(null); // для tooltip
 
     const themeObj = useMemo(() => themes[theme], [theme]);
 
@@ -213,60 +180,37 @@ const Sidebar = ({ color }) => {
                 <LogoSection>
                     <LogoImg src={logo} alt="Logo" />
                     <LogoText opened={isOpened}>TensorFlow</LogoText>
-                    {isOpened ? (
-                        <ToggleButton onClick={toggleSidebar} title="Toggle sidebar">
-                            <FontAwesomeIcon icon={isOpened ? 'angle-left' : 'angle-right'} />
-                        </ToggleButton>
-                    ) : null}
-                </LogoSection>
-                {!isOpened && (
-                    <ToggleButtonFixed onClick={toggleSidebar} title="Toggle sidebar">
+                    <ToggleButton onClick={toggleSidebar} title="Toggle sidebar">
                         <FontAwesomeIcon icon={isOpened ? 'angle-left' : 'angle-right'} />
-                    </ToggleButtonFixed>
-                )}
+                    </ToggleButton>
+                </LogoSection>
                 <ThemeButton onClick={toggleTheme} title="Toggle theme">
-                    <FontAwesomeIcon icon={theme === 'light' ? 'moon' : 'sun'} />
+                    <FontAwesomeIcon icon={theme === 'light' ? 'moon' : 'sun'} color={theme === 'light' ? '#000' : '#fff'} />
                 </ThemeButton>
                 <NavSection>
                     {routes.map(route => (
-                        <NavItemWrapper
+                        <NavItem
                             key={route.title}
-                            onMouseEnter={() => setHovered(route.title)}
-                            onMouseLeave={() => setHovered(null)}
+                            active={activePath === route.path}
+                            onClick={() => goToRoute(route.path)}
+                            opened={isOpened}
                         >
-                            <NavItem
-                                active={activePath === route.path}
-                                onClick={() => goToRoute(route.path)}
-                                opened={isOpened}
-                            >
-                                <FontAwesomeIcon icon={route.icon} />
-                                <span>{route.title}</span>
-                            </NavItem>
-                            {!isOpened && hovered === route.title && (
-                                <Tooltip style={{ opacity: 1 }}>{route.title}</Tooltip>
-                            )}
-                        </NavItemWrapper>
+                            <FontAwesomeIcon icon={route.icon} />
+                            <span>{route.title}</span>
+                        </NavItem>
                     ))}
                 </NavSection>
                 <BottomSection>
                     {bottomRoutes.map(route => (
-                        <NavItemWrapper
+                        <NavItem
                             key={route.title}
-                            onMouseEnter={() => setHovered(route.title)}
-                            onMouseLeave={() => setHovered(null)}
+                            active={activePath === route.path}
+                            onClick={() => goToRoute(route.path)}
+                            opened={isOpened}
                         >
-                            <NavItem
-                                active={activePath === route.path}
-                                onClick={() => goToRoute(route.path)}
-                                opened={isOpened}
-                            >
-                                <FontAwesomeIcon icon={route.icon} />
-                                <span>{route.title}</span>
-                            </NavItem>
-                            {!isOpened && hovered === route.title && (
-                                <Tooltip style={{ opacity: 1 }}>{route.title}</Tooltip>
-                            )}
-                        </NavItemWrapper>
+                            <FontAwesomeIcon icon={route.icon} />
+                            <span>{route.title}</span>
+                        </NavItem>
                     ))}
                 </BottomSection>
             </SidebarContainer>
